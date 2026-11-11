@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123b5d"><title>Heart Scanner Patch · Avance 8</title>
+<style>
+:root{--navy:#123b5d;--blue:#176b87;--bg:#f3f7fb;--ink:#203347;--muted:#64748b;--line:#dbe5ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+header{background:linear-gradient(120deg,#123b5d,#176b87);color:white;padding:24px 18px}header h1{margin:0 0 8px;font-size:clamp(23px,4vw,34px)}header p{margin:0;line-height:1.5}
+main{max-width:1050px;margin:18px auto;padding:0 12px 30px}.notice{background:#fff8e6;border:1px solid #f0d48a;padding:12px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.card{background:white;border:1px solid var(--line);border-radius:15px;padding:17px;min-width:0;box-shadow:0 4px 16px #1539550a}.wide{grid-column:1/-1}
+h2{font-size:18px;margin:0 0 13px;color:var(--navy)}label{display:block;font-size:13px;font-weight:bold;margin:12px 0 6px}
+input{width:100%;padding:12px;border:1px solid #cbd8e3;border-radius:9px;font-size:16px;background:white;color:var(--ink)}
+button{border:0;border-radius:9px;padding:11px 13px;font-size:14px;font-weight:bold;cursor:pointer;background:var(--blue);color:white;margin-top:10px}
+button.secondary{background:#eaf2f7;color:var(--navy)}button.danger{background:#fff0ef;color:#b42318}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.status{margin-top:12px;border-radius:10px;padding:12px;font-size:14px;line-height:1.45;background:#edf8f1;color:#18794e}.warn{background:#fff4e5;color:#9a6700}.alert{background:#fff0ef;color:#b42318}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}.statrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.stat{background:#f2f8fb;padding:12px;border-radius:11px}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;font-size:23px;margin-top:5px;color:var(--navy);overflow-wrap:anywhere}
+.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-size:12px}
+canvas{width:100%;height:220px;display:block;border:1px solid var(--line);border-radius:10px;background:white}footer{text-align:center;color:var(--muted);font-size:12px;padding:10px 15px 24px}
+@media(max-width:680px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.card{padding:14px}}
+</style></head><body>
+<header><div style="max-width:1050px;margin:auto"><h1>♥ Heart Scanner Patch</h1><p>Avance 8 · Prototipo autónomo para navegador · No necesita Node.js</p></div></header>
+<main>
+<div class="notice"><b>Uso académico:</b> usa únicamente datos ficticios. Esta aplicación no se conecta a sensores ni reemplaza una valoración médica. Los avisos son ejemplos de programación, no criterios médicos.</div>
+<div class="grid">
+<section class="card"><h2>Registrar lectura</h2>
+<label for="patient">Nombre o código ficticio del paciente</label><input id="patient" maxlength="60" placeholder="Ej. Paciente de prueba 01">
+<label for="bpm">Frecuencia cardíaca de ejemplo (latidos/min)</label><input id="bpm" type="number" min="1" max="300" placeholder="Ej. 78">
+<div class="actions"><button id="saveBtn">Guardar lectura</button><button class="secondary" id="sampleBtn">Cargar ejemplo</button></div>
+<div id="message" class="status" role="status">Listo para registrar una lectura de demostración.</div>
+<p class="muted">Los datos se guardan en este navegador si el almacenamiento local está disponible; no se envían a internet.</p></section>
+<section class="card"><h2>Resumen</h2><div class="statrow">
+<div class="stat"><small>Registros</small><strong id="total">0</strong></div><div class="stat"><small>Promedio</small><strong id="average">—</strong></div><div class="stat"><small>Última lectura</small><strong id="latest">—</strong></div></div>
+<label for="search">Buscar en el historial</label><input id="search" placeholder="Escribe un nombre o código">
+<div class="actions"><button class="secondary" id="csvBtn">Exportar CSV</button><button class="danger" id="clearBtn">Borrar historial</button></div></section>
+<section class="card wide"><h2>Gráfica de lecturas</h2><canvas id="chart" width="1000" height="260" aria-label="Gráfica de lecturas"></canvas><p class="muted">Muestra hasta las últimas 20 lecturas guardadas.</p></section>
+<section class="card wide"><h2>Historial</h2><div class="tablewrap"><table><thead><tr><th>Fecha y hora</th><th>Paciente de prueba</th><th>Latidos/min</th><th>Mensaje de demostración</th><th>Acción</th></tr></thead><tbody id="history"></tbody></table></div><p class="muted" id="empty">Todavía no hay lecturas. Carga un ejemplo para probar la aplicación.</p></section>
+</div></main><footer>Heart Scanner Patch · Proyecto académico · Versión estática sin servidor</footer>
+<script>
+(()=>{const $=id=>document.getElementById(id),KEY="heartScannerPatchAvance8";let records=[],storageWorks=true;
+try{const s=localStorage.getItem(KEY);if(s)records=JSON.parse(s);if(!Array.isArray(records))records=[]}catch(e){storageWorks=false}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(records));storageWorks=true}catch(e){storageWorks=false}}
+function note(n){return n>=140?"Aviso de ejemplo: valor alto para la simulación":n<=45?"Aviso de ejemplo: valor bajo para la simulación":"Registro de demostración guardado"}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function draw(){const c=$("chart"),x=c.getContext("2d"),w=c.width,h=c.height,p={l:48,r:20,t:20,b:36},cw=w-p.l-p.r,ch=h-p.t-p.b;x.clearRect(0,0,w,h);x.font="14px Arial";x.fillStyle="#64748b";x.strokeStyle="#dbe5ee";
+[0,50,100,150,200,250].forEach(v=>{let y=p.t+ch-v/250*ch;x.beginPath();x.moveTo(p.l,y);x.lineTo(w-p.r,y);x.stroke();x.fillText(v,p.l-35,y+5)});
+const d=records.slice(-20);if(!d.length){x.fillText("Agrega lecturas para ver la gráfica",p.l+15,h/2);return}let step=d.length>1?cw/(d.length-1):0;x.strokeStyle="#176b87";x.lineWidth=3;x.beginPath();d.forEach((r,i)=>{let xx=p.l+i*step,yy=p.t+ch-Math.min(250,r.bpm)/250*ch;i?x.lineTo(xx,yy):x.moveTo(xx,yy)});x.stroke();d.forEach((r,i)=>{let xx=p.l+i*step,yy=p.t+ch-Math.min(250,r.bpm)/250*ch;x.fillStyle="#176b87";x.beginPath();x.arc(xx,yy,5,0,Math.PI*2);x.fill()});x.fillStyle="#64748b";x.fillText("Lecturas recientes →",p.l,h-10)}
+function render(){let q=$("search").value.trim().toLowerCase(),list=records.filter(r=>r.patient.toLowerCase().includes(q));$("total").textContent=records.length;$("average").textContent=records.length?Math.round(records.reduce((a,r)=>a+r.bpm,0)/records.length):"—";$("latest").textContent=records.length?records[records.length-1].bpm:"—";
+$("history").innerHTML=list.slice().reverse().map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.patient)}</td><td>${r.bpm}</td><td>${esc(r.note)}</td><td><button class="danger delete" data-id="${r.id}" style="margin:0;padding:7px 9px">Eliminar</button></td></tr>`).join("");$("empty").style.display=list.length?"none":"block";document.querySelectorAll(".delete").forEach(b=>b.onclick=()=>{records=records.filter(r=>r.id!==b.dataset.id);persist();render()});draw()}
+$("saveBtn").onclick=()=>{let patient=$("patient").value.trim(),bpm=Number($("bpm").value);if(!patient){$("message").className="status warn";$("message").textContent="Escribe un nombre o código ficticio.";return}if(!$("bpm").value||!Number.isFinite(bpm)||bpm<1||bpm>300){$("message").className="status warn";$("message").textContent="Ingresa un número entre 1 y 300 para la demostración.";return}
+let n=note(bpm);records.push({id:String(Date.now())+Math.random().toString(16).slice(2),patient,bpm,note:n,date:new Date().toLocaleString("es-CO")});persist();$("message").className="status "+((bpm>=140||bpm<=45)?"alert":"");$("message").textContent=n+(storageWorks?"":" · El navegador no permitió guardar al cerrar.");$("bpm").value="";render()};
+$("sampleBtn").onclick=()=>{$("patient").value="Paciente de prueba 01";$("bpm").value="78"};
+$("search").oninput=render;$("clearBtn").onclick=()=>{if(confirm("¿Borrar todo el historial de demostración?")){records=[];persist();render();$("message").className="status";$("message").textContent="Historial borrado."}};
+$("csvBtn").onclick=()=>{if(!records.length){$("message").className="status warn";$("message").textContent="No hay datos para exportar.";return}const q=v=>'"'+String(v).replace(/"/g,'""')+'"',csv=[["Fecha y hora","Paciente de prueba","Latidos por minuto","Mensaje"],...records.map(r=>[r.date,r.patient,r.bpm,r.note])].map(row=>row.map(q).join(",")).join("\r\n"),blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="heart-scanner-historial.csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+render()})();
+</script></body></html>

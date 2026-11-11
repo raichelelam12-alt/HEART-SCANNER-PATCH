@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123b5d">
+<title>Heart Scanner Patch · Avance 10</title>
+<style>
+:root{--navy:#123b5d;--blue:#176b87;--bg:#f3f7fb;--ink:#203347;--muted:#64748b;--line:#dbe5ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+header{background:linear-gradient(120deg,#123b5d,#176b87);color:#fff;padding:24px 18px}
+header h1{margin:0 0 8px;font-size:clamp(23px,4vw,34px)}header p{margin:0;line-height:1.5}
+main{max-width:1080px;margin:18px auto;padding:0 12px 30px}
+.notice{background:#fff8e6;border:1px solid #f0d48a;padding:12px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.wide{grid-column:1/-1}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:17px;min-width:0;box-shadow:0 4px 16px #1539550a}
+h2{font-size:18px;margin:0 0 13px;color:var(--navy)}
+label{display:block;font-size:13px;font-weight:bold;margin:10px 0 6px}
+input{width:100%;padding:11px;border:1px solid #cbd8e3;border-radius:9px;font-size:15px;background:#fff;color:var(--ink)}
+button{border:0;border-radius:9px;padding:11px 13px;font-size:14px;font-weight:bold;cursor:pointer;background:var(--blue);color:white;margin-top:10px}
+button.secondary{background:#eaf2f7;color:var(--navy)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.muted{color:var(--muted);font-size:13px;line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.stat{background:#f2f8fb;padding:12px;border-radius:11px}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;font-size:22px;margin-top:5px;color:var(--navy)}
+.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-size:12px}
+canvas{width:100%;height:220px;border:1px solid var(--line);border-radius:10px;background:#fff}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:10px 15px 24px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:14px}}
+@media print{body{background:#fff}header{background:#123b5d!important;color:#fff!important;print-color-adjust:exact}.no-print{display:none!important}main{max-width:none;margin:0;padding:10px}.card{box-shadow:none;break-inside:avoid}.grid{gap:8px}}
+</style></head>
+<body>
+<header><div style="max-width:1080px;margin:auto"><h1>♥ Heart Scanner Patch</h1><p>Avance 10 · Centro de reportes y análisis de registros · Sin Node.js</p></div></header>
+<main>
+<div class="notice"><b>Demostración académica:</b> utiliza únicamente datos ficticios. Los reportes describen los datos ingresados; no realizan diagnósticos ni interpretaciones clínicas. No existe conexión con sensores ni con una base de datos central.</div>
+<section class="card no-print">
+<h2>Filtros del reporte</h2>
+<div class="grid">
+<div><label for="patientFilter">Paciente o código ficticio</label><input id="patientFilter" placeholder="Escribe para buscar"></div>
+<div><label for="dateFilter">Fecha (opcional)</label><input id="dateFilter" type="date"></div>
+</div>
+<div class="actions"><button id="apply">Aplicar filtros</button><button class="secondary" id="reset">Limpiar filtros</button><button class="secondary" id="print">Imprimir / Guardar como PDF</button><button class="secondary" id="csv">Exportar CSV</button></div>
+<p class="muted" id="sourceInfo">Los registros se leen del almacenamiento local del navegador.</p>
+</section>
+<div class="grid" style="margin-top:15px">
+<section class="card wide"><h2>Resumen del reporte</h2><div class="stats">
+<div class="stat"><small>Registros</small><strong id="count">0</strong></div>
+<div class="stat"><small>Pacientes</small><strong id="patients">0</strong></div>
+<div class="stat"><small>Alertas de atención*</small><strong id="attention">0</strong></div>
+<div class="stat"><small>Alertas revisadas</small><strong id="reviewed">0</strong></div>
+</div><p class="muted">*Clasificación de ejemplo basada en las reglas de demostración del avance 9.</p></section>
+<section class="card wide"><h2>Gráfica de registros</h2><canvas id="chart" width="1000" height="240" aria-label="Gráfica de lecturas ficticias"></canvas><p class="muted">Muestra hasta los últimos 20 registros filtrados, en orden cronológico.</p></section>
+<section class="card wide"><h2>Detalle de registros</h2><div class="tablewrap"><table><thead><tr><th>Fecha y hora</th><th>Paciente ficticio</th><th>Latidos/min</th><th>Clasificación de demo</th><th>Estado</th></tr></thead><tbody id="rows"></tbody></table></div><p id="empty" class="muted">No hay registros que coincidan con los filtros.</p></section>
+</div>
+</main><footer>Heart Scanner Patch · Proyecto académico · Avance 10</footer>
+<script>
+(()=>{
+const KEY="heartScannerPatchAvance9", $=id=>document.getElementById(id);
+let all=[], filtered=[];
+try{const v=JSON.parse(localStorage.getItem(KEY)||"[]");all=Array.isArray(v)?v:[]}catch(e){all=[]}
+const category=n=>n>=140?"Atención":n<=45?"Advertencia":"Informativa";
+function getFiltered(){
+ const p=$("patientFilter").value.trim().toLowerCase(), d=$("dateFilter").value;
+ filtered=all.filter(r=>(!p||String(r.patient||"").toLowerCase().includes(p))&&(!d||String(r.date||"").includes(d)));
+ filtered.sort((a,b)=>new Date(a.date)-new Date(b.date));
+ render();
+}
+function render(){
+ const uniq=new Set(filtered.map(r=>r.patient));
+ $("count").textContent=filtered.length;$("patients").textContent=uniq.size;
+ $("attention").textContent=filtered.filter(r=>category(Number(r.bpm))==="Atención").length;
+ $("reviewed").textContent=filtered.filter(r=>r.reviewed).length;
+ $("rows").innerHTML=filtered.slice().reverse().map(r=>`<tr><td>${safe(r.date)}</td><td>${safe(r.patient)}</td><td>${Number(r.bpm)||0}</td><td>${category(Number(r.bpm))}</td><td>${r.reviewed?"Revisada":"Pendiente"}</td></tr>`).join("");
+ $("empty").style.display=filtered.length?"none":"block";
+ draw();
+}
+function safe(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function draw(){
+ const c=$("chart"),ctx=c.getContext("2d"),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);
+ ctx.strokeStyle="#dbe5ee";ctx.lineWidth=1;
+ for(let i=0;i<5;i++){let y=20+i*(h-45)/4;ctx.beginPath();ctx.moveTo(45,y);ctx.lineTo(w-15,y);ctx.stroke()}
+ if(!filtered.length){ctx.fillStyle="#64748b";ctx.font="18px Arial";ctx.fillText("No hay datos para graficar",55,120);return}
+ const vals=filtered.slice(-20),max=Math.max(160,...vals.map(r=>Number(r.bpm)||0)),min=0;
+ const xstep=(w-80)/Math.max(1,vals.length-1);
+ ctx.strokeStyle="#176b87";ctx.lineWidth=3;ctx.beginPath();
+ vals.forEach((r,i)=>{let x=45+i*xstep,y=h-25-(Number(r.bpm)||0)/max*(h-55);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});
+ ctx.stroke();vals.forEach((r,i)=>{let x=45+i*xstep,y=h-25-(Number(r.bpm)||0)/max*(h-55);ctx.fillStyle="#123b5d";ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill()});
+ ctx.fillStyle="#64748b";ctx.font="12px Arial";ctx.fillText("Lecturas (orden cronológico)",45,h-7);ctx.fillText("Escala visual automática",w-190,15);
+}
+$("apply").onclick=getFiltered;$("reset").onclick=()=>{$("patientFilter").value="";$("dateFilter").value="";getFiltered()};
+$("print").onclick=()=>window.print();
+$("csv").onclick=()=>{
+ if(!filtered.length){alert("No hay registros para exportar.");return}
+ const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+ const lines=[["Fecha y hora","Paciente ficticio","Latidos por minuto","Clasificación demo","Estado"],...filtered.map(r=>[r.date,r.patient,r.bpm,category(Number(r.bpm)),r.reviewed?"Revisada":"Pendiente"])];
+ const blob=new Blob(["\ufeff"+lines.map(a=>a.map(q).join(",")).join("\r\n")],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="heart-scanner-reporte-avance10.csv";a.click();URL.revokeObjectURL(url);
+};
+if(!all.length)$("sourceInfo").textContent="No se encontraron registros guardados del avance 9 en este navegador. Puedes abrir el avance 9 y crear datos ficticios primero.";
+getFiltered();
+})();
+</script></body></html>

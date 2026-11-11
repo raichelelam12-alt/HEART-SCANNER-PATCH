@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart Scanner Patch | Avance 3</title>
+<style>
+:root{--navy:#10253f;--blue:#176b87;--teal:#20a39e;--bg:#f2f6fa;--text:#1d2b3a;--muted:#64748b;--line:#dce5ee;--red:#b42318;--amber:#9a6700;--green:#18794e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}header{background:linear-gradient(120deg,var(--navy),var(--blue));color:white;padding:25px 18px}header .wrap,main{max-width:1050px;margin:auto}header h1{margin:0 0 7px;font-size:27px}header p{margin:0;color:#d8eaf4;font-size:14px}.tag{display:inline-block;margin-top:12px;padding:5px 9px;border:1px solid #ffffff55;border-radius:20px;font-size:12px}
+main{padding:20px 16px 35px}.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:16px}.panel,.stat{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 3px 12px #10253f08}.panel h2{font-size:18px;margin:0 0 15px}.field{margin-bottom:13px}label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px}input{width:100%;padding:11px;border:1px solid #c8d5e2;border-radius:8px;font-size:15px;background:white}input:focus{outline:2px solid #20a39e55;border-color:var(--teal)}.hint{font-size:12px;color:var(--muted);margin-top:5px}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:8px;padding:10px 13px;font-weight:bold;cursor:pointer;font-size:13px}.primary{background:var(--blue);color:white}.secondary{background:#e7f2f7;color:var(--navy)}.danger{background:#fff0ee;color:var(--red)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}.stat .label{color:var(--muted);font-size:12px}.stat .number{font-size:25px;font-weight:bold;margin-top:7px;color:var(--navy)}.notice{display:none;border-radius:9px;padding:11px;margin-top:12px;font-size:13px;line-height:1.4}.notice.show{display:block}.notice.alert{background:#fff0ee;color:var(--red);border:1px solid #ffd4ce}.notice.ok{background:#eaf8f0;color:var(--green);border:1px solid #c7ebd5}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid #edf1f5;white-space:nowrap}th{font-size:12px;color:var(--muted);font-weight:bold}.pill{display:inline-block;border-radius:20px;padding:4px 7px;font-size:11px;font-weight:bold}.pill.normal{background:#eaf8f0;color:var(--green)}.pill.warning{background:#fff4d6;color:var(--amber)}.pill.alert{background:#fff0ee;color:var(--red)}.empty{text-align:center;color:var(--muted);padding:24px 8px}.history-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.history-head h2{margin-bottom:0}.search{max-width:250px}.smallbtn{padding:6px 8px;font-size:11px}.footer{text-align:center;font-size:12px;color:var(--muted);margin:20px 0 0;line-height:1.5}.full{margin-top:16px}@media(max-width:720px){.grid{grid-template-columns:1fr}.stats{gap:8px}.stat{padding:12px}.stat .number{font-size:22px}header h1{font-size:23px}}
+
+.hidden{display:none!important}.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px;background:linear-gradient(135deg,#10253f,#176b87)}.login-card{width:100%;max-width:420px;background:white;border-radius:18px;padding:26px;box-shadow:0 20px 55px #07192b55}.login-card h1{margin:0 0 8px;color:#10253f;font-size:25px}.login-card p{color:#64748b;font-size:14px;line-height:1.5}.demo-creds{background:#f2f6fa;border-radius:10px;padding:12px;font-size:12px;line-height:1.7;margin-top:14px}.login-error{display:none;background:#fff0ee;color:#b42318;padding:10px;border-radius:8px;font-size:13px;margin-top:10px}.login-error.show{display:block}.userbar{display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px}.user-chip{font-size:12px;color:#176b87;background:#e7f2f7;border-radius:20px;padding:7px 10px;font-weight:bold}
+</style>
+</head>
+<body>
+<section id="loginScreen" class="login-wrap">
+ <div class="login-card">
+  <div style="font-size:34px;margin-bottom:8px">♥</div>
+  <h1>Heart Scanner Patch</h1>
+  <p>Avance 3 · Inicio de sesión y perfiles de acceso para demostración académica.</p>
+  <form id="loginForm">
+   <div class="field"><label for="username">Usuario</label><input id="username" autocomplete="username" placeholder="Ingresa tu usuario" required></div>
+   <div class="field"><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required></div>
+   <button class="primary" style="width:100%;margin-top:5px" type="submit">Iniciar sesión</button>
+   <div id="loginError" class="login-error" role="alert">Usuario o contraseña incorrectos.</div>
+  </form>
+  <div class="demo-creds"><strong>Usuarios de prueba</strong><br>Administrador: <code>admin</code> / <code>admin123</code><br>Operador: <code>operador</code> / <code>1234</code></div>
+  <p style="font-size:11px;margin-bottom:0">Importante: las credenciales son de demostración y no protegen datos reales.</p>
+ </div>
+</section>
+<div id="appShell" class="hidden">
+<header><div class="wrap"><h1>♥ Heart Scanner Patch</h1><p>Prototipo académico de registro y seguimiento de lecturas cardíacas</p><span class="tag">Avance 3 · Perfiles de acceso y sesión de demostración</span></div></header>
+<main>
+<div class="userbar"><span id="userChip" class="user-chip">Sesión</span><button id="logoutBtn" class="secondary" type="button">Cerrar sesión</button></div>
+<section class="stats">
+ <div class="stat"><div class="label">Lecturas registradas</div><div class="number" id="total">0</div></div>
+ <div class="stat"><div class="label">Pacientes registrados</div><div class="number" id="patients">0</div></div>
+ <div class="stat"><div class="label">Alertas de demostración</div><div class="number" id="alerts">0</div></div>
+</section>
+<div class="grid">
+ <section class="panel"><h2>Registrar lectura</h2><p class="hint">Los usuarios de prueba pueden registrar nuevas lecturas.</p>
+  <form id="readingForm">
+   <div class="field"><label for="patient">Nombre del paciente</label><input id="patient" maxlength="70" placeholder="Ej. Laura Gómez" required></div>
+   <div class="field"><label for="bpm">Frecuencia cardíaca (latidos por minuto)</label><input id="bpm" type="number" min="1" max="300" placeholder="Ej. 82" required><div class="hint">Ingresa un valor para la demostración del sistema.</div></div>
+   <div class="btns"><button class="primary" type="submit">Registrar lectura</button><button class="secondary" type="reset">Limpiar formulario</button></div>
+  </form><div id="message" class="notice" role="status"></div>
+ </section>
+ <section class="panel"><h2>Última lectura</h2><div id="latest" class="empty">Todavía no hay lecturas registradas.</div><p class="hint">Los datos se guardan en este navegador usando almacenamiento local. No se envían a un servidor.</p></section>
+</div>
+<section class="panel full"><div class="history-head"><h2>Historial de lecturas</h2><input class="search" id="search" placeholder="Buscar por paciente…" aria-label="Buscar por paciente"></div>
+ <div class="btns"><button class="secondary" id="exportBtn" type="button">Exportar CSV</button><button class="danger" id="clearBtn" type="button">Borrar todo el historial</button></div>
+ <div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Fecha y hora</th><th>Paciente</th><th>Frecuencia</th><th>Resultado</th><th>Acción</th></tr></thead><tbody id="history"></tbody></table><div id="empty" class="empty">No hay registros para mostrar.</div></div>
+</section>
+<p class="footer">Proyecto académico. Este prototipo usa inicio de sesión simulado en el navegador y no está conectado a sensores biomédicos y no realiza diagnósticos. Los límites de alerta son únicamente para demostrar el funcionamiento del software; no sustituyen la valoración de un profesional de salud.</p>
+</main>
+</div>
+<script>
+const STORAGE_KEY='heartScannerReadingsV2';
+const USERS={admin:{password:'admin123',role:'Administrador'},operador:{password:'1234',role:'Operador'}};
+let currentUser=null;
+const loginScreen=document.getElementById('loginScreen'),appShell=document.getElementById('appShell');
+document.getElementById('loginForm').addEventListener('submit',e=>{e.preventDefault();const u=document.getElementById('username').value.trim().toLowerCase(),p=document.getElementById('password').value;const account=USERS[u];if(!account||account.password!==p){document.getElementById('loginError').classList.add('show');return;}currentUser={username:u,role:account.role};loginScreen.classList.add('hidden');appShell.classList.remove('hidden');document.getElementById('userChip').textContent=currentUser.role+' · '+currentUser.username;document.getElementById('loginError').classList.remove('show');document.getElementById('password').value='';applyRole();render();});
+document.getElementById('logoutBtn').addEventListener('click',()=>{currentUser=null;appShell.classList.add('hidden');loginScreen.classList.remove('hidden');document.getElementById('username').value='';document.getElementById('password').value='';});
+function applyRole(){const admin=currentUser&&currentUser.role==='Administrador';document.getElementById('clearBtn').classList.toggle('hidden',!admin);document.getElementById('exportBtn').classList.toggle('hidden',!admin);}
+const form=document.getElementById('readingForm'), patientInput=document.getElementById('patient'), bpmInput=document.getElementById('bpm');
+let readings=[];
+try{readings=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');if(!Array.isArray(readings))readings=[];}catch(e){readings=[];}
+function statusFor(bpm){return bpm>=140||bpm<=45?'Alerta de demostración':'Registro normal (demo)';}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(readings));}catch(e){alert('No fue posible guardar los datos en este navegador.');}}
+function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function dateText(iso){return new Date(iso).toLocaleString('es-CO',{dateStyle:'short',timeStyle:'short'});}
+function render(){
+ document.getElementById('total').textContent=readings.length;
+ document.getElementById('patients').textContent=new Set(readings.map(r=>r.patient.toLowerCase())).size;
+ document.getElementById('alerts').textContent=readings.filter(r=>r.bpm>=140||r.bpm<=45).length;
+ const latest=document.getElementById('latest');
+ if(readings.length){const r=readings[0],alert=r.bpm>=140||r.bpm<=45;latest.innerHTML=`<div style="font-size:13px;color:#64748b">${dateText(r.date)}</div><h3 style="margin:10px 0 5px">${safe(r.patient)}</h3><div style="font-size:35px;font-weight:bold;color:#10253f">${r.bpm} <span style="font-size:14px;font-weight:normal">lpm</span></div><span class="pill ${alert?'alert':'normal'}">${alert?'Alerta de demostración':'Registro normal (demo)'}</span>`;}else{latest.className='empty';latest.textContent='Todavía no hay lecturas registradas.';}
+ const term=document.getElementById('search').value.trim().toLowerCase();const shown=readings.filter(r=>r.patient.toLowerCase().includes(term));
+ document.getElementById('history').innerHTML=shown.map(r=>{const alert=r.bpm>=140||r.bpm<=45;return `<tr><td>${dateText(r.date)}</td><td>${safe(r.patient)}</td><td><strong>${r.bpm} lpm</strong></td><td><span class="pill ${alert?'alert':'normal'}">${alert?'Alerta demo':'Registro demo'}</span></td><td>${currentUser&&currentUser.role==='Administrador'?`<button class="danger smallbtn" data-delete="${r.id}" type="button">Eliminar</button>`:'Solo lectura'}</td></tr>`}).join('');
+ document.getElementById('empty').style.display=shown.length?'none':'block';
+}
+form.addEventListener('submit',e=>{e.preventDefault();const patient=patientInput.value.trim(),bpm=Number(bpmInput.value);if(!patient||!Number.isInteger(bpm)||bpm<1||bpm>300){return;}const item={id:String(Date.now())+'-'+Math.random().toString(16).slice(2),patient,bpm,date:new Date().toISOString()};readings.unshift(item);save();render();const msg=document.getElementById('message');msg.className='notice show '+(bpm>=140||bpm<=45?'alert':'ok');msg.textContent=bpm>=140||bpm<=45?'Lectura guardada. Se generó una alerta de demostración por el valor ingresado.':'Lectura guardada correctamente en el historial.';bpmInput.value='';});
+document.getElementById('search').addEventListener('input',render);
+document.getElementById('history').addEventListener('click',e=>{const id=e.target.dataset.delete;if(!id||!currentUser||currentUser.role!=='Administrador')return;readings=readings.filter(r=>r.id!==id);save();render();});
+document.getElementById('clearBtn').addEventListener('click',()=>{if(!currentUser||currentUser.role!=='Administrador')return;if(!readings.length){alert('El historial ya está vacío.');return;}if(confirm('¿Seguro que deseas borrar todas las lecturas guardadas?')){readings=[];save();render();document.getElementById('message').className='notice';}});
+document.getElementById('exportBtn').addEventListener('click',()=>{if(!currentUser||currentUser.role!=='Administrador')return;if(!readings.length){alert('Primero registra al menos una lectura.');return;}const rows=[['Fecha y hora','Paciente','Frecuencia (lpm)','Resultado'],...readings.map(r=>[dateText(r.date),r.patient,r.bpm,r.bpm>=140||r.bpm<=45?'Alerta de demostración':'Registro normal (demo)'])];const csv='\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='heart-scanner-historial.csv';a.click();URL.revokeObjectURL(url);});
+render();
+</script>
+</body></html>
